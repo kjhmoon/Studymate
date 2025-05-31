@@ -1,18 +1,19 @@
+
 <!DOCTYPE html>
+
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
   <title>StudyMate - Study Room</title>
-  <link rel="stylesheet" th:href="@{/css/common-styles.css}">
-  <link rel="stylesheet" th:href="@{/css/studyroom-styles.css}">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <link rel="stylesheet" th:href="@{/css/common-styles.css}"/>
+  <link rel="stylesheet" th:href="@{/css/studyroom-styles.css}"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet"/>
 </head>
 <body>
 <div th:replace="~{fragments/header :: header}"></div>
-
 <div class="container">
-  <input type="hidden" name="userId" th:value="${#authentication.principal.id}">
+  <input name="userId" th:value="${#authentication.principal.id}" type="hidden"/>
   <div class="studyroom-header">
     <div class="header-top">
       <h1 class="group-title" th:text="${group.groupName}">스터디룸</h1>
@@ -29,7 +30,6 @@
         </button>
       </div>
     </div>
-
     <div class="study-info">
       <span class="status" th:text="${group.status}">RECRUITING</span>
       <span class="members" th:text="|참여 인원: ${group.currentMembers} / ${group.maxMembers}|">
@@ -38,12 +38,11 @@
       <span class="subject" th:text="${group.subjectName}">과목명</span>
     </div>
   </div>
-
   <!-- 스트리밍 섹션 -->
   <div class="streaming-section">
     <div class="video-container">
       <div class="main-video">
-        <video id="localVideo" autoplay muted playsinline></video>
+        <video autoplay="" id="localVideo" muted="" playsinline=""></video>
       </div>
       <div class="video-controls">
         <button id="muteButton"><i class="fas fa-microphone"></i></button>
@@ -55,102 +54,60 @@
       <!-- 참가자 비디오들이 동적으로 추가될 공간 -->
     </div>
   </div>
-
   <div class="studyroom-content">
     <div class="content-wrapper">
       <div class="content-grid">
         <div class="left-section">
           <div class="content-box">
             <h2>질문 게시판</h2>
-            <div class="post-list">
-              <!-- 게시글 아이템 구조 변경 -->
-              <div class="post-item" th:each="post : ${posts}" th:onclick="|showPost(${post.id})|">
-                <div class="post-title" th:text="${post.title}">게시글 제목</div>
-                <div class="post-author" th:text="${post.authorName}">작성자</div>
-                <div class="post-date" th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd')}">2024-03-21</div>
-                <div class="post-arrow">
-                  <i class="fas fa-chevron-right"></i>
-                </div>
-              </div>
-            </div>
-            <!-- studyroom.html의 post-list 다음에 추가 -->
-            <div id="selectedPost" class="selected-post">
+            <!-- 선택된 게시글의 상세 내용을 보여주는 영역 -->
+            <div class="selected-post" id="selectedPost" style="display: none;">
               <div class="post-header">
                 <button class="back-btn" onclick="hideSelectedPost()">
                   <i class="fas fa-arrow-left"></i>
                 </button>
-                <h2 class="selected-title"></h2>
-                <span class="selected-author"></span>
+                <h3 class="selected-title"></h3>
+                <div class="post-actions">
+                  <span class="selected-author"></span>
+                  <div class="post-buttons">
+                    <button class="edit-btn" onclick="editPost()" style="display: none;">
+                      <i class="fas fa-edit"></i> 수정
+                    </button>
+                    <button class="delete-btn" onclick="deletePost()" style="display: none;">
+                      <i class="fas fa-trash-alt"></i> 삭제
+                    </button>
+                  </div>
+                </div>
               </div>
               <div class="post-content"></div>
-              <div class="post-actions">
-                <button class="edit-btn" onclick="editPost()">
-                  <i class="fas fa-edit"></i> 수정
-                </button>
-                <button class="delete-btn" onclick="deletePost()">
-                  <i class="fas fa-trash"></i> 삭제
-                </button>
-              </div>
-              <div class="comments-section">
-                <h3>댓글</h3>
+              <div class="post-comments">
+                <h4>댓글</h4>
                 <div class="comments-list"></div>
                 <div class="comment-form">
-                  <textarea id="commentText" placeholder="댓글을 입력하세요"></textarea>
-                  <button onclick="addComment()">등록</button>
+                  <textarea id="commentText" placeholder="댓글을 입력하세요..."></textarea>
+                  <button onclick="addComment()">댓글 작성</button>
                 </div>
               </div>
             </div>
-            <button class="action-btn" onclick="openQuestionModal()">
-              <i class="fas fa-plus"></i> 질문하기
-            </button>
+            <!-- 게시글 목록을 보여주는 영역 -->
+            <div class="post-list">
+              <!-- 게시글 목록이 동적으로 로드됩니다 -->
+            </div>
+            <button class="action-btn" onclick="openQuestionModal()">질문하기</button>
           </div>
         </div>
-
-
         <div class="right-section">
           <div class="content-box">
             <h2>학습 자료실</h2>
             <div class="material-list">
-              <!-- 자료 아이템 구조 변경 -->
-              <div class="material-item" th:each="material : ${materials}" th:data-material-id="${material.id}">
-                <div class="material-title" th:text="${material.title}">자료 제목</div>
-                <div class="material-actions">
-                  <button class="material-menu-btn" onclick="toggleMaterialMenu(this)">
-                    <i class="fas fa-ellipsis-v"></i>
-                  </button>
-                  <div class="material-menu">
-                    <button onclick="editMaterial(this)">수정</button>
-                    <button onclick="deleteMaterial(this)">삭제</button>
-                  </div>
-                </div>
-              </div>
+              <!-- 자료 목록이 동적으로 로드됩니다 -->
             </div>
             <button class="action-btn" onclick="openUploadModal()">자료 업로드</button>
           </div>
-
-          <!-- 학습 일정 부분 수정 -->
           <div class="content-box">
             <h2>학습 일정</h2>
             <div class="schedule-list">
-              <div class="schedule-item" th:each="schedule : ${schedules}">
-                <div class="schedule-info">
-                  <div class="schedule-title" th:text="${schedule.title}">일정 제목</div>
-                  <div class="schedule-datetime" th:text="${#temporals.format(schedule.scheduleDateTime, 'yyyy-MM-dd HH:mm')}">
-                    2024-03-21 14:00
-                  </div>
-                  <!-- 작성자 정보 추가 -->
-                  <div class="schedule-creator" th:text="${'작성자: ' + schedule.creatorName}">작성자: 홍길동</div>
-                </div>
-                <!-- 작성자인 경우에만 수정/삭제 버튼 표시 -->
-                <div class="schedule-actions" th:if="${#authentication.principal.id == schedule.creatorId}">
-                  <button class="edit-btn" th:onclick="editSchedule([[${schedule.id}]])">
-                    <i class="fas fa-edit"></i>
-                  </button>
-                  <button class="delete-btn" th:onclick="deleteSchedule([[${schedule.id}]])">
-                    <i class="fas fa-trash"></i>
-                  </button>
-                </div>
-              </div>
+              <!-- 일정이 동적으로 로드됩니다 -->
             </div>
             <button class="action-btn" onclick="openScheduleModal()">일정 추가</button>
           </div>
@@ -159,16 +116,15 @@
     </div>
   </div>
 </div>
-
 <!-- 자료 업로드 모달 -->
-<div id="uploadModal" class="modal">
+<div class="modal" id="uploadModal">
   <div class="modal-content">
-    <span class="close" onclick="closeUploadModal()">&times;</span>
+    <span class="close" onclick="closeUploadModal()">×</span>
     <h2 class="modal-title">자료 업로드</h2>
     <form id="uploadForm">
       <div class="form-group">
         <label for="fileTitle">자료 제목</label>
-        <input type="text" id="fileTitle" name="title" required>
+        <input id="fileTitle" name="title" required="" type="text"/>
       </div>
       <div class="form-group">
         <label for="fileDescription">설명</label>
@@ -176,80 +132,76 @@
       </div>
       <div class="form-group">
         <label for="fileUpload">파일 선택</label>
-        <input type="file" id="fileUpload" name="file" required>
+        <input id="fileUpload" name="file" required="" type="file"/>
       </div>
       <div class="form-actions">
-        <button type="submit" class="submit-btn"><i class="fas fa-upload"></i> 업로드</button>
-        <button type="button" onclick="closeUploadModal()" class="cancel-btn">취소</button>
+        <button class="submit-btn" type="submit">업로드</button>
+        <button class="cancel-btn" onclick="closeUploadModal()" type="button">취소</button>
       </div>
     </form>
   </div>
 </div>
-
 <!-- 일정 추가/수정 모달 -->
-<div id="scheduleModal" class="modal">
+<div class="modal" id="scheduleModal">
   <div class="modal-content">
-    <span class="close" onclick="closeScheduleModal()">&times;</span>
+    <span class="close" onclick="closeScheduleModal()">×</span>
     <h2 class="modal-title">일정 추가</h2>
     <form id="scheduleForm">
       <div class="form-group">
         <label for="scheduleTitle">일정 제목</label>
-        <input type="text" id="scheduleTitle" name="title" required>
+        <input id="scheduleTitle" name="title" required="" type="text"/>
       </div>
       <div class="form-group">
         <label for="scheduleDate">날짜</label>
-        <input type="date" id="scheduleDate" name="date" required>
+        <input id="scheduleDate" name="date" required="" type="date"/>
       </div>
       <div class="form-group">
         <label for="scheduleTime">시간</label>
-        <input type="time" id="scheduleTime" name="time" required>
+        <input id="scheduleTime" name="time" required="" type="time"/>
       </div>
       <div class="form-group">
         <label for="scheduleDescription">설명</label>
         <textarea id="scheduleDescription" name="description"></textarea>
       </div>
       <div class="form-actions">
-        <button type="submit" class="submit-btn"><i class="fas fa-calendar-plus"></i> 저장</button>
-        <button type="button" onclick="closeScheduleModal()" class="cancel-btn">취소</button>
+        <button class="submit-btn" type="submit">저장</button>
+        <button class="cancel-btn" onclick="closeScheduleModal()" type="button">취소</button>
       </div>
     </form>
   </div>
 </div>
-
 <!-- 질문하기 모달 -->
-<div id="questionModal" class="modal">
+<div class="modal" id="questionModal">
   <div class="modal-content">
-    <span class="close" onclick="closeQuestionModal()">&times;</span>
+    <span class="close" onclick="closeQuestionModal()">×</span>
     <h2 class="modal-title">질문하기</h2>
     <form id="questionForm">
-      <input type="hidden" id="boardId" name="boardId">
-      <input type="hidden" id="studygroupId" name="studygroupId" th:value="${group.id}">
+      <input id="boardId" name="boardId" type="hidden"/>
+      <input id="studygroupId" name="studygroupId" th:value="${group.id}" type="hidden"/>
       <div class="form-group">
         <label for="title">제목</label>
-        <input type="text" id="title" name="title" required>
+        <input id="title" name="title" required="" type="text"/>
       </div>
       <div class="form-group">
         <label for="content">내용</label>
-        <textarea id="content" name="content" required></textarea>
+        <textarea id="content" name="content" required=""></textarea>
       </div>
       <div class="form-actions">
-        <button type="submit" class="submit-btn"><i class="fas fa-paper-plane"></i> 작성완료</button>
-        <button type="button" onclick="closeQuestionModal()" class="cancel-btn">취소</button>
+        <button class="submit-btn" type="submit">작성완료</button>
+        <button class="cancel-btn" onclick="closeQuestionModal()" type="button">취소</button>
       </div>
     </form>
   </div>
 </div>
-
 <!-- 설정 모달 -->
-<div id="settingsModal" class="modal">
+<div class="modal" id="settingsModal">
   <div class="modal-content">
-    <span class="close" onclick="closeSettingsModal()">&times;</span>
+    <span class="close" onclick="closeSettingsModal()">×</span>
     <h2 class="modal-title">스터디 설정</h2>
-    <form id="updateStudyForm">
+    <form id="settingsForm"><input id="groupId" th:value="${group.id}" type="hidden"/>
       <div class="form-group">
         <label for="groupName">스터디 그룹명</label>
-        <input type="text" id="groupName" name="groupName"
-               th:value="${group.groupName}" required>
+        <input id="groupName" name="groupName" required="" th:value="${group.groupName}" type="text"/>
       </div>
       <div class="form-group">
         <label for="maxMembers">최대 인원</label>
@@ -261,27 +213,28 @@
         </select>
       </div>
       <div class="form-actions">
-        <button type="submit" class="submit-btn"><i class="fas fa-save"></i> 저장</button>
-        <button type="button" onclick="confirmDelete()" class="delete-btn"><i class="fas fa-trash-alt"></i> 스터디 삭제</button>
+        <button class="submit-btn" type="submit">저장</button>
+        <button class="delete-btn" onclick="confirmDelete()" type="button">스터디 삭제</button>
+        <button class="cancel-btn" onclick="closeSettingsModal()" type="button">취소</button>
       </div>
     </form>
   </div>
 </div>
-
 <!-- 나가기 확인 모달 -->
-<div id="leaveConfirmModal" class="modal">
+<div class="modal" id="leaveConfirmModal">
   <div class="modal-content">
     <h2 class="modal-title">스터디 탈퇴</h2>
     <p>정말로 스터디에서 탈퇴하시겠습니까?</p>
     <div class="modal-actions">
-      <button onclick="leaveGroup()" class="submit-btn">확인</button>
-      <button onclick="closeLeaveConfirmModal()" class="cancel-btn">취소</button>
+      <button class="submit-btn" onclick="leaveGroup()">확인</button>
+      <button class="cancel-btn" onclick="closeLeaveConfirmModal()">취소</button>
     </div>
   </div>
 </div>
-
-
 <div th:replace="~{fragments/footer :: footer}"></div>
+console.log("groupName =", groupName);
+console.log("groupId =", groupId);
+console.log("userId =", userId);
 <script th:src="@{/js/utils.js}"></script>
 <script th:src="@{/js/model-handlers.js}"></script>
 <script th:src="@{/js/stream-handlers.js}"></script>
@@ -290,8 +243,37 @@
 <script th:src="@{/js/schedule-handlers.js}"></script>
 <script th:src="@{/js/material-handlers.js}"></script>
 <script th:src="@{/js/main.js}"></script>
-<script th:src="@{/js/study-group.js}"></script>
+<script>
+  document.getElementById("settingsForm").addEventListener("submit", function(e) {
+    e.preventDefault();
 
+    const groupName = document.getElementById("groupName").value.trim();
+    const maxMembers = document.getElementById("maxMembers").value;
+    const groupId = document.getElementById("groupId").value;
+    const userId = document.querySelector("input[name='userId']").value;
 
-</body>
+    if (!groupName) {
+      alert("스터디 그룹명을 입력하세요");
+      return;
+    }
+
+    fetch(`/api/study-mate/studygroups/update?groupId=${groupId}&userId=${userId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+      group_name: groupName,
+      max_members: parseInt(maxMembers)
+  })
+    }).then(res => {
+      if (res.ok) {
+        alert("저장되었습니다.");
+        location.reload();
+      } else {
+        alert("수정 실패");
+      }
+    });
+  });
+</script></body>
 </html>
