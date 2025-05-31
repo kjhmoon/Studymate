@@ -20,10 +20,6 @@ public class StudygroupConverter {
     private final GroupMemberRepository groupMemberRepository;
 
     public StudygroupDto toDto(StudygroupEntity studygroupEntity, User currentUser) {
-        if (studygroupEntity == null) {
-            return null;  // 또는 빈 DTO를 반환하는 것을 고려
-        }
-
         MemberRole role = null;
         if (currentUser != null) {
             Optional<GroupMember> member = groupMemberRepository.findByGroupAndUser(studygroupEntity, currentUser);
@@ -34,11 +30,9 @@ public class StudygroupConverter {
 
         return StudygroupDto.builder()
                 .id(studygroupEntity.getId())
-                .subjectId(studygroupEntity.getSubjectEntity() != null ?
-                        studygroupEntity.getSubjectEntity().getId() : null)
+                .subjectId(studygroupEntity.getSubjectEntity().getId())
                 .groupName(studygroupEntity.getGroupName())
-                .subjectName(studygroupEntity.getSubjectEntity() != null ?
-                        studygroupEntity.getSubjectEntity().getSubjectName() : null)
+                .subjectName(studygroupEntity.getSubjectEntity().getSubjectName())
                 .currentMembers(studygroupEntity.getCurrentMembers())
                 .maxMembers(studygroupEntity.getMaxMembers())
                 .status(studygroupEntity.getStatus() != null ?
@@ -47,7 +41,6 @@ public class StudygroupConverter {
                 .memberRole(role != null ? role.name() : null)
                 .build();
     }
-
 
     // 새로운 오버로드된 메서드
     public StudygroupDto toDto(StudygroupEntity studygroupEntity) {
